@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"prod-crm/models"
 	"prod-crm/utils"
@@ -28,8 +27,6 @@ func (h *EmployeeHandler) AddEmployee(ctx *gin.Context) {
 	}
 
 	if err := models.CreateEmployee(h.DB, employee); err != nil {
-		fmt.Println("Error : ", err)
-		fmt.Println(employee)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to add employee")
 		return
 	}
