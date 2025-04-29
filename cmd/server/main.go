@@ -48,6 +48,7 @@ func main() {
 	routes.RegisterProductRoutes(r, db)
 	routes.RegisterServiceRoutes(r, db)
 	routes.RegisterOrderRoutes(r, db)
+	routes.RegisterCustomerServiceRoutes(r, db)
 
 	port := os.Getenv("PORT")
 	if port == "" {
