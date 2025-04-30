@@ -1,11 +1,14 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"prod-crm/models"
 	"prod-crm/utils"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -52,10 +55,10 @@ func (ac *AuthController) Register(ctx *gin.Context) {
 	})
 }
 
-func (ac *AuthController) Login(ctx *gin.Context){
-	var input struct{
-		Email		string		`json:"email" binding:"required,email"`
-		Password	string		`json:"password" binding:"required"`
+func (ac *AuthController) Login(ctx *gin.Context) {
+	var input struct {
+		Email    string `json:"email" binding:"required,email"`
+		Password string `json:"password" binding:"required"`
 	}
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -64,12 +67,12 @@ func (ac *AuthController) Login(ctx *gin.Context){
 	}
 
 	var admin models.Admin
-	if err := ac.DB.Where("email = ?", input.Email).First(&admin).Error; err != nil{
+	if err := ac.DB.Where("email = ?", input.Email).First(&admin).Error; err != nil {
 		utils.ErrorResponse(ctx, http.StatusUnauthorized, "Invalid email or password")
 		return
 	}
 
-	if !utils.CheckPasswordHash(input.Password, admin.Password){
+	if !utils.CheckPasswordHash(input.Password, admin.Password) {
 		utils.ErrorResponse(ctx, http.StatusUnauthorized, "Invalid email or password")
 		return
 	}
@@ -95,19 +98,76 @@ func (ac *AuthController) Login(ctx *gin.Context){
 	})
 }
 
-func (ac *AuthController) ForgotPassword(ctx *gin.Context){
-	var input struct{
+func (ac *AuthController) ForgotPassword(ctx *gin.Context) {
+	var input struct {
 		Email string `json:"email" binding:"required,email"`
 	}
-
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		utils.ErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid email")
 		return
 	}
 
-	resetToken := "dummy-reset-token-for-" + input.Email
+	var admin models.Admin
+	if err := ac.DB.Where("email = ?", input.Email).First(&admin).Error; err != nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Email not found")
+		return
+	}
 
-	utils.SuccessResponse(ctx, "Password reset token generated", gin.H{
-		"reset_token": resetToken,
-	})
+	// Generate reset token and expiry (30 minutes from now)
+	token := uuid.NewString()
+	expiry := time.Now().Add(30 * time.Minute)
+
+	admin.ResetToken = token
+	admin.ResetTokenExpiry = &expiry // ✅ Set it correctly as a pointer
+
+	if err := ac.DB.Save(&admin).Error; err != nil {
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to save reset token")
+		return
+	}
+
+	if err := utils.SendResetEmail(admin.Email, token); err != nil {
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to send email")
+		return
+	}
+
+	utils.SuccessResponse(ctx, "Reset link sent to email", nil)
+}
+
+func (ac *AuthController) ResetPassword(ctx *gin.Context) {
+	resetToken := ctx.Param("token")
+
+	var input struct {
+		NewPassword string `json:"new_password" binding:"required,min=6"`
+	}
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Password is required")
+		return
+	}
+
+	var admin models.Admin
+	if err := ac.DB.
+		Where("reset_token = ? AND reset_token_expiry IS NOT NULL AND reset_token_expiry > ?", resetToken, time.Now()).
+		First(&admin).Error; err != nil {
+		fmt.Println(err)
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid or expired token")
+		return
+	}
+
+	hashed, err := utils.HashPassword(input.NewPassword)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error hashing password")
+		return
+	}
+
+	admin.Password = hashed
+	admin.ResetToken = ""
+	admin.ResetTokenExpiry = nil
+
+	if err := ac.DB.Save(&admin).Error; err != nil {
+		fmt.Println(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to reset password")
+		return
+	}
+
+	utils.SuccessResponse(ctx, "Password reset successful", nil)
 }

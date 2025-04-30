@@ -7,12 +7,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func AuthRoutes(r *gin.Engine, db *gorm.DB){
+func AuthRoutes(r *gin.Engine, db *gorm.DB) {
 	auth := controllers.NewAuthController(db)
 	authGroup := r.Group("/api/auth")
 	{
 		authGroup.POST("/register", auth.Register)
 		authGroup.POST("/login", auth.Login)
 		authGroup.POST("/forgot-password", auth.ForgotPassword)
+		authGroup.POST("/reset-password/:token", auth.ResetPassword)
 	}
 }
