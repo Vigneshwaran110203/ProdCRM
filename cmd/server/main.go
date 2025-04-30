@@ -43,6 +43,7 @@ func main() {
 	r := gin.Default()
 
 	routes.AuthRoutes(r, db)
+	routes.RegisterDashboardRoutes(r, db)
 	routes.EmployeeRoutes(r, db)
 	routes.RegisterCustomerRoutes(r, db)
 	routes.RegisterProductRoutes(r, db)
