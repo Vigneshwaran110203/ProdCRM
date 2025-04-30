@@ -3,12 +3,15 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"prod-crm/models"
 	"prod-crm/utils"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"google.golang.org/api/idtoken"
 	"gorm.io/gorm"
 )
 
@@ -170,4 +173,53 @@ func (ac *AuthController) ResetPassword(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, "Password reset successful", nil)
+}
+
+func (ac *AuthController) GoogleLogin(ctx *gin.Context) {
+	var input struct {
+		IDToken string `json:"id_token" binding:"required"`
+	}
+
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "ID token is required")
+		return
+	}
+
+	// Validate Google ID token
+	payload, err := idtoken.Validate(ctx, input.IDToken, os.Getenv("GOOGLE_CLIENT_ID"))
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusUnauthorized, "Invalid Google token")
+		return
+	}
+
+	email := fmt.Sprintf("%v", payload.Claims["email"])
+	if email == "" {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Email not found in token")
+		return
+	}
+
+	var admin models.Admin
+	if err := ac.DB.Where("email = ?", email).First(&admin).Error; err != nil {
+		// Optional: auto-register admin or reject
+		admin = models.Admin{
+			Email:    email,
+			Username: strings.Split(email, "@")[0],
+			Role:     "admin", // or default role
+		}
+		if err := ac.DB.Create(&admin).Error; err != nil {
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to auto-create admin")
+			return
+		}
+	}
+
+	token, err := utils.GenerateJWT(admin.ID)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to generate JWT")
+		return
+	}
+
+	ctx.SetCookie("crm_token", token, 3600*24, "/", "", false, true)
+	utils.SuccessResponse(ctx, "Google login successful", gin.H{
+		"token": token,
+	})
 }

@@ -15,5 +15,6 @@ func AuthRoutes(r *gin.Engine, db *gorm.DB) {
 		authGroup.POST("/login", auth.Login)
 		authGroup.POST("/forgot-password", auth.ForgotPassword)
 		authGroup.POST("/reset-password/:token", auth.ResetPassword)
+		authGroup.POST("/google-login", auth.GoogleLogin)
 	}
 }
