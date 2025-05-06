@@ -223,3 +223,7 @@ func (ac *AuthController) GoogleLogin(ctx *gin.Context) {
 		"token": token,
 	})
 }
+
+func CheckSession(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{"isAuthenticated": true})
+}
