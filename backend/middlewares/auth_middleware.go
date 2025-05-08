@@ -9,6 +9,7 @@ import (
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+
 		tokenString, err := ctx.Cookie("crm_token")
 		if err != nil || tokenString == "" {
 			ctx.JSON(http.StatusUnauthorized, gin.H{

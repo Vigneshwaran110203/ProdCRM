@@ -1,21 +1,31 @@
-import axios from "axios";
-import { createContext, useContext, useEffect, useState } from "react";
+// import axios from "axios";
+import { createContext, useCallback, useEffect, useState } from "react";
+import { get } from "../services/api";
 
-const AuthContext = createContext()
+// eslint-disable-next-line react-refresh/only-export-components
+export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
     const [auth, setAuth] = useState({ isAuthenticated: false, loading: true});
+    const [modal, setModal] = useState(false)
+
+    const checkSession = useCallback(async () => {
+        try {
+            await get("/auth/check-session");
+            setAuth({ isAuthenticated: true, loading: false });
+        // eslint-disable-next-line no-unused-vars
+        } catch (error) {
+            setAuth({ isAuthenticated: false, loading: false });
+        }
+    }, []);
 
     useEffect(() => {
-        axios.get("/auth/check-session").then(()=>setAuth({ isAuthenticated: true, loading: false })).catch(()=> setAuth({isAuthenticated: false, loading: false}))
-    }, [])
+        checkSession();
+    }, [checkSession]);
 
     return(
-        <AuthContext.Provider value={auth}>
+        <AuthContext.Provider value={{ auth, modal, setModal }}>
             {children}
         </AuthContext.Provider>
     )
 }
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const useAuth = () => useContext(AuthContext)

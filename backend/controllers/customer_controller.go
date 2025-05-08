@@ -35,6 +35,7 @@ func (h *CustomerHandler) CreateCustomer(ctx *gin.Context) {
 }
 
 func (h *CustomerHandler) GetCustomers(ctx *gin.Context) {
+
 	var customers []models.Customer
 	if err := h.DB.Find(&customers).Error; err != nil {
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to fetch customers")

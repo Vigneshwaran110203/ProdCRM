@@ -15,7 +15,7 @@ const Login = () => {
 
     try{
         await post("/auth/login", {email, password});
-        navigate("/dashboard")
+        navigate("/dashboard/")
     }
     catch (err){
         console.error(err)
@@ -41,7 +41,7 @@ const Login = () => {
                     </div>
                     <div className="flex flex-col justify-start gap-2">
                         <label htmlFor="" className="font-medium">Password</label>
-                        <input type="email" className="outline-none border-[1px] border-gray-200 px-3 py-2 rounded-3xl text-gray-600" value={password} onChange={(e)=>setPassword(e.target.value)} />
+                        <input type="password" className="outline-none border-[1px] border-gray-200 px-3 py-2 rounded-3xl text-gray-600" value={password} onChange={(e)=>setPassword(e.target.value)} />
                         <span className="text-[#2979ff] font-semibold text-sm ml-auto">Forgot Your Password?</span>
                     </div>
                     <button type="submit" className="w-full bg-[#2979FF] text-white p-3 rounded-xl">Login</button>
