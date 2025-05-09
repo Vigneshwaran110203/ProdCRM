@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Logo from "../components/Logo"
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import { post } from "../services/api";
+import { AuthContext } from "../context/AuthContent";
 
 const Login = () => { 
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const { setAuth } = useContext(AuthContext)
   const navigate = useNavigate();
 
   const handleSubmit = async(e)=>{
@@ -15,7 +17,9 @@ const Login = () => {
 
     try{
         await post("/auth/login", {email, password});
-        navigate("/dashboard/")
+        // Manually update auth state
+        setAuth({ isAuthenticated: true, loading: false });
+        navigate("/dashboard")
     }
     catch (err){
         console.error(err)

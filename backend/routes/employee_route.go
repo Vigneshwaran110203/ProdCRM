@@ -13,8 +13,8 @@ func EmployeeRoutes(r *gin.Engine, db *gorm.DB) {
 	employeeGroup := r.Group("/api/employees")
 	employeeGroup.Use(middlewares.AuthMiddleware())
 	{
-		employeeGroup.POST("/", employeeHandler.AddEmployee)
-		employeeGroup.GET("/", employeeHandler.GetEmployees)
+		employeeGroup.POST("", employeeHandler.AddEmployee)
+		employeeGroup.GET("", employeeHandler.GetEmployees)
 		employeeGroup.GET("/:id", employeeHandler.GetEmployeeByID)
 		employeeGroup.PUT("/:id", employeeHandler.UpdateEmployee)
 		employeeGroup.DELETE("/:id", employeeHandler.DeleteEmployee)

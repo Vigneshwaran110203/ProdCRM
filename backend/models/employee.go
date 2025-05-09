@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -19,7 +20,11 @@ type Employee struct {
 }
 
 func CreateEmployee(db *gorm.DB, employee Employee) error {
-	return db.Create(&employee).Error
+	if err := db.Create(&employee).Error; err != nil {
+		fmt.Println("DB Insert Error:", err)
+		return err
+	}
+	return nil
 }
 
 func GetAllEmployees(db *gorm.DB) ([]Employee, error) {
