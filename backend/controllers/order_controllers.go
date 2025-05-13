@@ -30,6 +30,7 @@ func (h *OrderHandler) CreateOrder(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
 		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid Request")
+		fmt.Println(err)
 		return
 	}
 
@@ -135,6 +136,15 @@ func (h *OrderHandler) GetOrders(ctx *gin.Context) {
 	if err := h.DB.Find(&orders).Error; err != nil {
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to fetch orders")
 		return
+	}
+	// Now load products for each order
+	for i := range orders {
+		var orderProducts []models.OrderProduct
+		if err := h.DB.Where("order_id = ?", orders[i].ID).Find(&orderProducts).Error; err != nil {
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to fetch products for orders")
+			return
+		}
+		orders[i].Products = orderProducts
 	}
 	utils.SuccessResponse(ctx, "Orders fetched successfully", orders)
 }

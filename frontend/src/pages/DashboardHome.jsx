@@ -16,6 +16,8 @@ const DashboardHome = () => {
     get("/dashboard").then((res)=> setStats(res.data)).catch((err) => console.error("Dashboard Error: ", err))
   }, [])
 
+  console.log(stats)
+
   if (!stats) return <p>Loading...</p>
 
   return (

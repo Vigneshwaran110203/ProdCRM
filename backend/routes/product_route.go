@@ -13,8 +13,8 @@ func RegisterProductRoutes(r *gin.Engine, db *gorm.DB) {
 	productGroup := r.Group("/api/products")
 	productGroup.Use(middlewares.AuthMiddleware())
 	{
-		productGroup.POST("/", productHandler.CreateProduct)
-		productGroup.GET("/", productHandler.GetProducts)
+		productGroup.POST("", productHandler.CreateProduct)
+		productGroup.GET("", productHandler.GetProducts)
 		productGroup.GET("/:id", productHandler.GetProduct)
 		productGroup.PUT("/:id", productHandler.UpdateProduct)
 		productGroup.DELETE("/:id", productHandler.DeleteProduct)

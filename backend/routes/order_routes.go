@@ -13,8 +13,8 @@ func RegisterOrderRoutes(r *gin.Engine, db *gorm.DB){
 	orderGroup := r.Group("/api/orders")
 	orderGroup.Use(middlewares.AuthMiddleware())
 	{
-		orderGroup.POST("/", orderHandler.CreateOrder)
-		orderGroup.GET("/", orderHandler.GetOrders)
+		orderGroup.POST("", orderHandler.CreateOrder)
+		orderGroup.GET("", orderHandler.GetOrders)
 		orderGroup.PUT("/:id", orderHandler.UpdateOrder)
 		orderGroup.DELETE("/:id", orderHandler.DeleteOrder)
 	}

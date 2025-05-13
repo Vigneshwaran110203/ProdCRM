@@ -13,8 +13,8 @@ func RegisterServiceRoutes(r *gin.Engine, db *gorm.DB) {
 	serviceGroup := r.Group("/api/services")
 	serviceGroup.Use(middlewares.AuthMiddleware())
 	{
-		serviceGroup.POST("/", serviceHandler.CreateService)
-		serviceGroup.GET("/", serviceHandler.GetServices)
+		serviceGroup.POST("", serviceHandler.CreateService)
+		serviceGroup.GET("", serviceHandler.GetServices)
 		serviceGroup.GET("/:id", serviceHandler.GetService)
 		serviceGroup.PUT("/:id", serviceHandler.UpdateService)
 		serviceGroup.DELETE("/:id", serviceHandler.DeleteService)
