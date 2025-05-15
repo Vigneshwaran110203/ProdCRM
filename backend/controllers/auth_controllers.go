@@ -227,3 +227,16 @@ func (ac *AuthController) GoogleLogin(ctx *gin.Context) {
 func CheckSession(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"isAuthenticated": true})
 }
+
+func Logout(ctx *gin.Context) {
+	ctx.SetCookie(
+		"crm_token",
+		"",    // clear the token
+		-1,    // maxAge -1 deletes the cookie
+		"/",   // path must match the original
+		"",    // domain ("" means current domain)
+		false, // secure (set true in production with HTTPS)
+		true,  // httpOnly
+	)
+	ctx.JSON(200, gin.H{"message": "Logged out successfully"})
+}

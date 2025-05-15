@@ -23,6 +23,8 @@ export const AuthProvider = ({ children }) => {
         checkSession();
     }, [checkSession]);
 
+    
+
     return(
         <AuthContext.Provider value={{ auth, setAuth, modal, setModal }}>
             {children}

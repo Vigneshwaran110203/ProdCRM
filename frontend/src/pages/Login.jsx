@@ -4,6 +4,7 @@ import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import { post } from "../services/api";
 import { AuthContext } from "../context/AuthContent";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 
 const Login = () => { 
 
@@ -46,7 +47,9 @@ const Login = () => {
                     <div className="flex flex-col justify-start gap-2">
                         <label htmlFor="" className="font-medium">Password</label>
                         <input type="password" className="outline-none border-[1px] border-gray-200 px-3 py-2 rounded-3xl text-gray-600" value={password} onChange={(e)=>setPassword(e.target.value)} />
-                        <span className="text-[#2979ff] font-semibold text-sm ml-auto">Forgot Your Password?</span>
+                        <Link to='/forgot-password'className="text-[#2979ff] font-semibold text-sm ml-auto">
+                            <span>Forgot Your Password?</span>
+                        </Link> 
                     </div>
                     <button type="submit" className="w-full bg-[#2979FF] text-white p-3 rounded-xl">Login</button>
                 </form>
@@ -55,7 +58,8 @@ const Login = () => {
                     <p className="px-2 py-1 border-[1px] border-gray-200 rounded-3xl">or</p>
                     <span className="w-full h-[0.5px] bg-gray-200"></span>
                 </div>
-                <button className="w-full bg-white border-[1px] p-3 rounded-xl flex justify-center items-center gap-4 "><span>Log in with Google</span> <FcGoogle  className="size-6"/></button>
+                {/* <button className="w-full bg-white border-[1px] p-3 rounded-xl flex justify-center items-center gap-4 "><span>Log in with Google</span> <FcGoogle  className="size-6"/></button> */}
+                <GoogleLoginButton />
                 <p className="text-center text-base">Don't have an account? <Link to='/signup'><span className="text-[#2979ff] font-bold">Sign Up</span></Link></p>
             </div>
         </div>

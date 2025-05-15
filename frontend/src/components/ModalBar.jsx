@@ -83,7 +83,7 @@ const ModalBar = ({ isEditMode, editData, onClose, onCustomerUpdate }) => {
 
   return (
     <div className='w-full min-h-screen flex justify-center items-center bg-gray-900/50 absolute top-0 left-0'>
-        <div className='w-1/4 bg-white rounded p-5'>
+        <div className='w-11/12 md:w-8/12 lg:w-1/2 xl:w-1/4 bg-white rounded p-5'>
             <h3 className='text-xl font-semibold'>Add Customers</h3>
             <form onSubmit={handleSubmit} className='space-y-5 mt-8'>
                 <div className='grid grid-cols-2 gap-4'>

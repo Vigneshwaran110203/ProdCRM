@@ -12,6 +12,8 @@ import Signup from "../pages/Signup"
 import ProtectedRoute from "../routes/ProtectedRoute"
 import DashboardPage from "../pages/DashboardPage"
 import { AuthContext } from '../context/AuthContent'
+import ForgotPassword from '../pages/ForgotPassword'
+import ResetPassword from '../pages/ResetPassword'
 
 const AppRoutes = () => {
 
@@ -22,6 +24,8 @@ const AppRoutes = () => {
     <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route 
             path="/dashboard"
             element={

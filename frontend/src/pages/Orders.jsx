@@ -169,7 +169,7 @@ const Orders = () => {
                 })}
               </td>
               <td className='p-3 border'>{order.total_amount}</td>
-              <td className='p-1 flex justify-center items-center gap-4'>
+              <td className='p-1 flex justify-center items-center gap-4 pb-2.5'>
                 <button
                   onClick={() => handleEdit(order)}
                   className='text-2xl text-white bg-green-500 p-1.5 rounded-md cursor-pointer'

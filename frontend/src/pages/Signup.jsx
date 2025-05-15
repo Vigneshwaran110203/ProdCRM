@@ -3,6 +3,7 @@ import Logo from "../components/Logo"
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import { post } from "../services/api";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 
 const Signup = () => {
     
@@ -53,7 +54,8 @@ const Signup = () => {
                     <p className="px-2 py-1 border-[1px] border-gray-200 rounded-3xl">or</p>
                     <span className="w-full h-[0.5px] bg-gray-200"></span>
                 </div>
-                <button className="w-full bg-white border-[1px] p-3 rounded-xl flex justify-center items-center gap-4 "><span>Log in with Google</span> <FcGoogle  className="size-6"/></button>
+                {/* <button className="w-full bg-white border-[1px] p-3 rounded-xl flex justify-center items-center gap-4 "><span>Log in with Google</span> <FcGoogle  className="size-6"/></button> */}
+                <GoogleLoginButton />
                 <p className="text-center text-base">Already have an account? <Link to='/login'><span className="text-[#2979ff] font-bold">Login</span></Link></p>
             </div>
         </div>
