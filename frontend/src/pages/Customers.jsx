@@ -39,7 +39,7 @@ const Customers = () => {
   console.log(customers)
 
   return (
-    <div className='p-8 overflow-x-hidden'>
+    <div className='p-8 overflow-x-auto'>
         {modal && (
           <ModalBar
             isEditMode={isEditMode}
@@ -70,7 +70,7 @@ const Customers = () => {
           <IoMdAdd className='text-xl font-semibold'/>
           <h3 className='text-base font-medium'>Add Customers</h3>
         </div>
-        <table className='mt-12 w-full overflow-x-scroll'>
+        <table className='mt-12 w-full'>
           <thead>
             <tr className='text-left bg-blue-50 rounded-sm'>
               <th className='p-3 border border-blue-100'>ID</th>

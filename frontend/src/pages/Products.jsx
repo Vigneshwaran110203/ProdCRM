@@ -32,7 +32,7 @@ const Products = () => {
   };
 
   return (
-    <div className='p-8'>
+    <div className='p-8 overflow-x-auto'>
       {modal && (
         <ProductModal
           isEditMode={isEditMode}

@@ -40,7 +40,7 @@ const Sidebar = () => {
           </div>
         </div>
         <button onClick={handleLogout} className="flex items-center gap-4 bg-[#2979ff] p-2 w-full text-white text-lg justify-center rounded-md"><span>Logout</span> <BiLogOut /></button>
-        <GiHamburgerMenu className="bg-white cursor-pointer p-2 text-4xl absolute top-8 left-[100%] ml-6" onClick={()=>setSidebar(!sidebar)}/>
+        <GiHamburgerMenu className="bg-white cursor-pointer p-2 text-4xl absolute top-6 md:top-8 left-[100%] ml-6" onClick={()=>setSidebar(!sidebar)}/>
     </div>
   )
 }

@@ -36,7 +36,7 @@ const Services = () => {
   };
 
   return (
-    <div className='p-8'>
+    <div className='p-8 overflow-x-auto'>
       {modal && (
         <ModalBar
           isEditMode={isEditMode}

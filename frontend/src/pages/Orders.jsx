@@ -112,7 +112,7 @@ const Orders = () => {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-8 overflow-x-auto">
       <h1 className='text-3xl font-semibold uppercase'>order Management</h1>
       <button className="cursor-pointer flex justify-between items-center gap-4 mt-12 p-3 bg-[#2979FF] text-white border border-blue-100 w-fit rounded-md" onClick={() => setModalOpen(true)}>
         <IoMdAdd className='text-xl font-semibold' />
