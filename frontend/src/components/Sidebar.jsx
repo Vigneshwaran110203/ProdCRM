@@ -26,11 +26,11 @@ const Sidebar = () => {
   const [sidebar, setSidebar] = useState(false)
 
   return (
-    <div className={`bg-[#f0f8ff] fixed top-0 left-0 z-50 ${sidebar ? "-translate-x-full": "translate-x-0"} shadow-sm w-72 sm:w-80 lg:w-1/4 xl:w-96 h-screen rounded-md p-7 flex flex-col justify-between items-start`}>
+    <div className={`bg-[#f0f8ff] fixed 2xl:relative top-0 left-0 z-50 ${sidebar ? "-translate-x-full 2xl:translate-x-0": "translate-x-0"} shadow-sm w-72 sm:w-80 lg:w-1/4 xl:w-96 h-screen rounded-md p-7 flex flex-col justify-between items-start`}>
         <Logo />
-        <div className="space-y-8 w-full">
+        <div className="space-y-8 lg:space-y-4 xl:space-y-8 w-full">
           <span className="text-xl font-semibold text-[#2979FF]">MENU</span>
-          <div className="space-y-4">
+          <div className="2xl:space-y-4">
             <NavLink to="/dashboard" end className={linkClass}><RxDashboard /> Dashboard</NavLink>
             <NavLink to="/dashboard/customers" className={linkClass}><FiUsers /> Customers</NavLink>
             <NavLink to="/dashboard/employees" className={linkClass}><RiCustomerService2Line /> Employees</NavLink>
@@ -40,7 +40,7 @@ const Sidebar = () => {
           </div>
         </div>
         <button onClick={handleLogout} className="flex items-center gap-4 bg-[#2979ff] p-2 w-full text-white text-lg justify-center rounded-md"><span>Logout</span> <BiLogOut /></button>
-        <GiHamburgerMenu className="bg-white cursor-pointer p-2 text-4xl absolute top-6 md:top-8 left-[100%] ml-6" onClick={()=>setSidebar(!sidebar)}/>
+        <GiHamburgerMenu className="bg-white 2xl:hidden cursor-pointer p-2 text-4xl absolute top-6 md:top-8 left-[100%] ml-6" onClick={()=>setSidebar(!sidebar)}/>
     </div>
   )
 }
