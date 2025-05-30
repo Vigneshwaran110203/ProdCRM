@@ -17,7 +17,11 @@ func AuthRoutes(r *gin.Engine, db *gorm.DB) {
 		authGroup.POST("/forgot-password", auth.ForgotPassword)
 		authGroup.POST("/reset-password/:token", auth.ResetPassword)
 		authGroup.POST("/google-login", auth.GoogleLogin)
-		authGroup.GET("/check-session", middlewares.AuthMiddleware(), controllers.CheckSession)
+		authGroup.GET("/setup-2fa", middlewares.AuthMiddleware(), auth.Setup2FA)
+		authGroup.POST("/enable-2fa", middlewares.AuthMiddleware(), auth.Enable2FA)
+		authGroup.POST("/verify-2fa", auth.Verify2FA)
+		authGroup.POST("/reset-2fa", middlewares.AuthMiddleware(), auth.Reset2FA)
+		authGroup.GET("/check-session", middlewares.AuthMiddleware(), auth.CheckSession)
 		authGroup.POST("/logout", middlewares.AuthMiddleware(), controllers.Logout)
 	}
 }

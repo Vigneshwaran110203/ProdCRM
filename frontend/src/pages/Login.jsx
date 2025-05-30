@@ -13,19 +13,26 @@ const Login = () => {
   const { setAuth } = useContext(AuthContext)
   const navigate = useNavigate();
 
-  const handleSubmit = async(e)=>{
-    e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await post("/auth/login", { email, password });
 
-    try{
-        await post("/auth/login", {email, password});
-        // Manually update auth state
-        setAuth({ isAuthenticated: true, loading: false });
-        navigate("/dashboard")
+      console.log(res.data.require_2fa)
+  
+      if (res.data.require_2fa) {
+        // Store adminId in local/session storage
+        sessionStorage.setItem("pending_2fa_admin", res.data.user_id);
+        navigate("/verify-2fa");
+        return;
+      }
+  
+      setAuth({ isAuthenticated: true, loading: false });
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
     }
-    catch (err){
-        console.error(err)
-    }
-  }
+  };
 
   return (
     <div onSubmit={handleSubmit} className='bg-[#e3f2fd] min-h-screen flex justify-center items-center'>
@@ -58,7 +65,6 @@ const Login = () => {
                     <p className="px-2 py-1 border-[1px] border-gray-200 rounded-3xl">or</p>
                     <span className="w-full h-[0.5px] bg-gray-200"></span>
                 </div>
-                {/* <button className="w-full bg-white border-[1px] p-3 rounded-xl flex justify-center items-center gap-4 "><span>Log in with Google</span> <FcGoogle  className="size-6"/></button> */}
                 <GoogleLoginButton />
                 <p className="text-center text-base">Don't have an account? <Link to='/signup'><span className="text-[#2979ff] font-bold">Sign Up</span></Link></p>
             </div>

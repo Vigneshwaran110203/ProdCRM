@@ -14,6 +14,9 @@ import DashboardPage from "../pages/DashboardPage"
 import { AuthContext } from '../context/AuthContent'
 import ForgotPassword from '../pages/ForgotPassword'
 import ResetPassword from '../pages/ResetPassword'
+import TOTPSetup from '../components/TOTPSetup'
+import Verify2FAForm from '../components/Verify2FAForm'
+import Reset2FA from '../components/Reset2FA'
 
 const AppRoutes = () => {
 
@@ -26,6 +29,9 @@ const AppRoutes = () => {
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/setup-2fa" element={<TOTPSetup />} />
+          <Route path="/verify-2fa" element={<Verify2FAForm />} />
+          <Route path="/reset-2fa" element={<Reset2FA />} />
           <Route 
             path="/dashboard"
             element={

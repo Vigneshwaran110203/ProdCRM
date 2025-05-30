@@ -77,7 +77,7 @@ const DashboardHome = () => {
                 </div>
             </div>
         </div>
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-x-12 lg:gap-x-8 xl:gap-x-12 gap-y-8 lg:gap-y-14 pt-12'>
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-x-12 lg:gap-x-8 xl:gap-x-12 gap-y-8 lg:gap-y-14 pt-12 mb-8'>
             <RevenueChart data={stats.monthly_revenue} />
             <CustomerGrowthChart data={stats.customer_growth} />
             <OrderStatusChart data={stats.orders_by_status} />

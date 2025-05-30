@@ -12,6 +12,8 @@ type Admin struct {
 	Email            string         `gorm:"unique;not null" json:"email"`
 	Password         string         `gorm:"not null" json:"-"`
 	Role             string         `gorm:"default:admin" json:"role"`
+	TwoFAEnabled     bool           `gorm:"default:false" json:"two_fa_enabled"`
+	TwoFASecret      string         `gorm:"size:255" json:"-"`
 	ResetToken       string         `gorm:"size:255" json:"-"`
 	ResetTokenExpiry *time.Time     `gorm:"default:null" json:"-"`
 	CreatedAt        time.Time      `json:"created_at"`

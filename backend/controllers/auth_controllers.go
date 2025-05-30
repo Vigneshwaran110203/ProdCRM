@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/pquerna/otp/totp"
 	"google.golang.org/api/idtoken"
 	"gorm.io/gorm"
 )
@@ -77,6 +78,15 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 
 	if !utils.CheckPasswordHash(input.Password, admin.Password) {
 		utils.ErrorResponse(ctx, http.StatusUnauthorized, "Invalid email or password")
+		return
+	}
+
+	if admin.TwoFAEnabled {
+		// Don't issue token yet
+		ctx.JSON(http.StatusOK, gin.H{
+			"require_2fa": true,
+			"user_id":     admin.ID,
+		})
 		return
 	}
 
@@ -224,8 +234,22 @@ func (ac *AuthController) GoogleLogin(ctx *gin.Context) {
 	})
 }
 
-func CheckSession(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"isAuthenticated": true})
+func (ac *AuthController) CheckSession(ctx *gin.Context) {
+	adminID := ctx.MustGet("adminID").(uint)
+
+	var admin models.Admin
+	if err := ac.DB.First(&admin, adminID).Error; err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid session"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"isAuthenticated": true,
+		"id":              admin.ID,
+		"name":            admin.Username,
+		"email":           admin.Email,
+		"two_fa_enabled":  admin.TwoFAEnabled,
+	})
 }
 
 func Logout(ctx *gin.Context) {
@@ -239,4 +263,130 @@ func Logout(ctx *gin.Context) {
 		true,  // httpOnly
 	)
 	ctx.JSON(200, gin.H{"message": "Logged out successfully"})
+}
+
+func (ac *AuthController) Setup2FA(ctx *gin.Context) {
+	// Extract user ID from JWT
+	fmt.Println("Context keys:", ctx.Keys)
+	adminID := ctx.MustGet("adminID").(uint)
+
+	var admin models.Admin
+	if err := ac.DB.First(&admin, adminID).Error; err != nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Admin not found")
+		return
+	}
+
+	// Generate new secret
+	secret, err := totp.Generate(totp.GenerateOpts{
+		Issuer:      "CRM System",
+		AccountName: admin.Email,
+	})
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to generate secret")
+		return
+	}
+
+	// Save secret
+	admin.TwoFASecret = secret.Secret()
+	if err := ac.DB.Save(&admin).Error; err != nil {
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to store secret")
+		return
+	}
+
+	// Send QR code URL
+	ctx.JSON(http.StatusOK, gin.H{"otp_auth_url": secret.URL()})
+}
+
+func (ac *AuthController) Enable2FA(ctx *gin.Context) {
+	adminID := ctx.MustGet("adminID").(uint)
+
+	var input struct {
+		Code string `json:"code" binding:"required"`
+	}
+
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Code required")
+		return
+	}
+
+	var admin models.Admin
+	if err := ac.DB.First(&admin, adminID).Error; err != nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Admin not found")
+		return
+	}
+
+	// Verify TOTP code
+	if !totp.Validate(input.Code, admin.TwoFASecret) {
+		utils.ErrorResponse(ctx, http.StatusUnauthorized, "Invalid 2FA code")
+		return
+	}
+
+	admin.TwoFAEnabled = true
+	ac.DB.Save(&admin)
+
+	utils.SuccessResponse(ctx, "2FA Enabled", nil)
+}
+
+func (ac *AuthController) Verify2FA(ctx *gin.Context) {
+	var input struct {
+		AdminID uint   `json:"admin_id" binding:"required"`
+		Code    string `json:"code" binding:"required"`
+	}
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid input")
+		return
+	}
+
+	var admin models.Admin
+	if err := ac.DB.First(&admin, input.AdminID).Error; err != nil {
+		utils.ErrorResponse(ctx, http.StatusUnauthorized, "Admin not found")
+		return
+	}
+
+	if !totp.Validate(input.Code, admin.TwoFASecret) {
+		utils.ErrorResponse(ctx, http.StatusUnauthorized, "Invalid 2FA code")
+		return
+	}
+
+	token, err := utils.GenerateJWT(admin.ID)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to generate token")
+		return
+	}
+
+	ctx.SetCookie("crm_token", token, 3600*24, "/", "", false, true)
+	utils.SuccessResponse(ctx, "2FA verified", gin.H{"token": token})
+}
+
+func (ac *AuthController) Reset2FA(ctx *gin.Context) {
+	adminID := ctx.MustGet("adminID").(uint)
+
+	var input struct {
+		Password string `json:"password" binding:"required"`
+	}
+
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Password is required")
+		return
+	}
+
+	var admin models.Admin
+	if err := ac.DB.First(&admin, adminID).Error; err != nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Admin not found")
+		return
+	}
+
+	if !utils.CheckPasswordHash(input.Password, admin.Password) {
+		utils.ErrorResponse(ctx, http.StatusUnauthorized, "Incorrect password")
+		return
+	}
+
+	admin.TwoFAEnabled = false
+	admin.TwoFASecret = ""
+	if err := ac.DB.Save(&admin).Error; err != nil {
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Could not reset 2FA")
+		return
+	}
+
+	utils.SuccessResponse(ctx, "2FA has been disabled", nil)
 }
